@@ -4,6 +4,7 @@ import hashlib
 from starlette.applications import Starlette
 from starlette.routing import Route
 from starlette.requests import Request
+from starlette.responses import JSONResponse
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
 from mcp.types import Tool, TextContent
@@ -80,8 +81,13 @@ async def messages_handler(request: Request):
     await sse.handle_post_message(request.scope, request.receive, request._send)
 
 
+async def healthcheck_handler(request: Request):
+    return JSONResponse({"status": "ok"})
+
+
 app.routes.append(Route("/sse", endpoint=sse_handler))
 app.routes.append(Route("/messages", endpoint=messages_handler, methods=["POST"]))
+app.routes.append(Route("/health", endpoint=healthcheck_handler))
 
 
 if __name__ == "__main__":
